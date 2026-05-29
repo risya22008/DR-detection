@@ -349,7 +349,7 @@ if not os.path.exists("models"):
 
     os.makedirs("models", exist_ok=True)
 
-    file_id = "1VRdtUqnoNRoRU5uPKwHGEt83SahClFHp"
+    file_id = "1U2J8I-GiLjcaRIwuIbalgs0Q841KU0JT"
 
     url = f"https://drive.google.com/uc?id={file_id}"
 
