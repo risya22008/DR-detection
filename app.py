@@ -644,7 +644,7 @@ with tab2:
 
         st.image(
 
-            "performance/ensemble_cm.jpg",
+            "performance/ensemble_cm.jpeg",
 
             caption="Ensemble Confusion Matrix",
 
@@ -655,7 +655,7 @@ with tab2:
 
         st.image(
 
-            "performance/roc_curve.jpg",
+            "performance/roc_curve.jpeg",
 
             caption="ROC Curve",
 
@@ -666,7 +666,7 @@ with tab2:
 
         st.image(
 
-            "performance/calibration_curve.jpg",
+            "performance/calibration_curve.jpeg",
 
             caption="Calibration Curve",
 
