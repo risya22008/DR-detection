@@ -47,14 +47,6 @@ MAIN BACKGROUND
 }
 
 /* ================================
-MAIN BACKGROUND
-================================ */
-
-.stApp {
-    background-color: #FFFFFF;
-}
-
-/* ================================
 GENERAL TEXT
 ================================ */
 
@@ -198,15 +190,6 @@ BUTTONS
     background-color: #111111;
 
     color: white;
-}
-
-/* ================================
-SIDEBAR
-================================ */
-
-[data-testid="stSidebar"] {
-
-    background-color: #FAFAFA;
 }
 
 /* ================================
@@ -648,7 +631,7 @@ with tab2:
 
             caption="Ensemble Confusion Matrix",
 
-            width="stretch"
+            width=300,
         )
 
     with col2:
@@ -659,7 +642,7 @@ with tab2:
 
             caption="ROC Curve",
 
-            width="stretch"
+            width=300,
         )
 
     with col3:
@@ -670,7 +653,7 @@ with tab2:
 
             caption="Calibration Curve",
 
-            width="stretch"
+            width=300,
         )
 
 # =========================================================
@@ -691,10 +674,8 @@ st.sidebar.markdown("""
 
 ### Ensemble Methods
 
-- Stratified 5-Fold Cross Validation
-- Weighted Soft Voting
-- Power Voting
-- Weighted Ensemble Learning
+- Stratified K-Fold Cross Validation
+- Weighted Power Soft Voting
 - Probability Calibration (Platt Scaling)
 
 ---
