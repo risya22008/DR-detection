@@ -678,7 +678,7 @@ st.sidebar.markdown("""
 
 - EfficientNet-B3
 - ConvNeXt-Tiny
-- Swin-Tiny
+- Swin Transformer Tiny
 
 ---
 
