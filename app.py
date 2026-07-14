@@ -23,7 +23,7 @@ st.set_page_config(
 
     page_title="DR Classification",
 
-    page_icon="👁️",
+    page_icon= "image/eyes.png",
 
     layout="wide",
 
@@ -222,7 +222,18 @@ img {
 # TITLE
 # =========================================================
 
-st.title("👁️ Diabetic Retinopathy Detection System")
+col1, col2, col3 = st.columns([0.6,0.6, 10])
+
+with col1:
+    st.markdown("<div style='margin-top:12px'></div>", unsafe_allow_html=True)
+    st.image("image/eyes.png", width=60)
+
+with col2:
+    st.markdown("<div style='margin-top:12px'></div>", unsafe_allow_html=True)
+    st.image("image/loupe.png", width=60)
+
+with col3:
+    st.markdown("# Diabetic Retinopathy Detection System")
 
 st.write("""
 Ensemble Deep Learning for Retinal Fundus Classification
@@ -235,7 +246,6 @@ with main_container:
     tab1, tab2 = st.tabs([
 
         "🔍 Prediction",
-
         "📊 Performance"
     ])
 
