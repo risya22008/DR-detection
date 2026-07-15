@@ -15,85 +15,59 @@ from PIL import Image
 
 from torchvision import transforms
 
-# =========================================================
 # PAGE CONFIG
-# =========================================================
 
 st.set_page_config(
-
     page_title="DR Classification",
-
     page_icon= "image/eyes.png",
-
     layout="wide",
-
     initial_sidebar_state="expanded"
 )
-
-# =========================================================
-# PROFESSIONAL WHITE UI
-# =========================================================
 
 st.markdown("""
 
 <style>
-
-/* ================================
-MAIN BACKGROUND
-================================ */
+// MAIN BACKGROUND
 
 .stApp {
     background-color: #FFFFFF;
 }
 
-/* ================================
-GENERAL TEXT
-================================ */
+// GENERAL TEXT
 
 body {
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* ================================
-HEADINGS
-================================ */
+// HEADINGS
 
 h1, h2, h3 {
 
     color: #111111 !important;
 }
 
-/* ================================
-PARAGRAPH
-================================ */
+// PARAGRAPH
 
 p {
 
     color: #333333 !important;
 }
 
-/* ================================
-TABS
-================================ */
+// TABS
 
 .stTabs [data-baseweb="tab"] {
 
     color: #111111 !important;
 }
 
-/* ================================
-SIDEBAR
-================================ */
+// SIDEBAR
 
 [data-testid="stSidebar"] {
 
     background-color: #F8F9FA;
 }
 
-
-/* ================================
-MAIN CONTAINER
-================================ */
+// MAIN CONTAINER
 
 .block-container {
     padding-top: 2rem;
@@ -102,27 +76,20 @@ MAIN CONTAINER
     padding-right: 3rem;
 }
 
-/* ================================
-TITLE
-================================ */
-
+// TITLE
 h1 {
     font-size: 2.5rem;
     font-weight: 700;
     color: #111111;
 }
 
-/* ================================
-SUBTITLE
-================================ */
+// SUBTITLE
 
 h2, h3 {
     color: #222222;
 }
 
-/* ================================
-TABS
-================================ */
+// TABS
 
 .stTabs [data-baseweb="tab-list"] {
     gap: 24px;
@@ -149,9 +116,9 @@ TABS
     padding-right: 20px;
 }
 
-/* ================================
+/* 
 ACTIVE TAB
-================================ */
+*/
 
 .stTabs [aria-selected="true"] {
 
@@ -160,9 +127,9 @@ ACTIVE TAB
     color: #000000;
 }
 
-/* ================================
+/* 
 FILE UPLOADER
-================================ */
+ */
 
 .stFileUploader {
 
@@ -173,9 +140,9 @@ FILE UPLOADER
     padding: 1rem;
 }
 
-/* ================================
+/* 
 BUTTONS
-================================ */
+ */
 
 .stButton>button {
 
@@ -192,9 +159,9 @@ BUTTONS
     color: white;
 }
 
-/* ================================
+/* 
 METRIC BOX
-================================ */
+ */
 
 [data-testid="stMetric"] {
 
@@ -205,9 +172,9 @@ METRIC BOX
     padding: 15px;
 }
 
-/* ================================
+/* 
 IMAGE
-================================ */
+ */
 
 img {
 
@@ -217,10 +184,7 @@ img {
 </style>
 
 """, unsafe_allow_html=True)
-
-# =========================================================
-# TITLE
-# =========================================================
+# TITL
 
 col1, col2, col3 = st.columns([0.6,0.6, 10])
 
@@ -249,16 +213,10 @@ with main_container:
         "📊 Performance"
     ])
 
-
-# =========================================================
-# DEVICE
-# =========================================================
+# DEVIC
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-# =========================================================
-# LOAD ENSEMBLE CONFIG
-# =========================================================
+# LOAD ENSEMBLE CONFI
 
 ensemble_config = torch.load(
 
@@ -283,10 +241,7 @@ ALL_WEIGHTS = ensemble_config["weights"]
 BASE_MODEL_WEIGHTS = ensemble_config["base_model_weights"]
 
 CLASS_NAMES = ensemble_config["class_names"]
-
-# =========================================================
-# MODEL CLASS
-# =========================================================
+# MODEL CLAS
 
 class Model(nn.Module):
 
@@ -333,10 +288,7 @@ class Model(nn.Module):
         x = self.head(x)
 
         return x
-
-# =====================================================
-# DOWNLOAD MODELS
-# =====================================================
+# DOWNLOAD MODEL
 
 if not os.path.exists("models"):
 
@@ -369,10 +321,7 @@ if not os.path.exists("models"):
             zip_ref.extractall("models")
 
     st.success("Models downloaded successfully!")
-
-# =========================================================
-# LOAD ALL MODELS
-# =========================================================
+# LOAD ALL MODEL
 
 @st.cache_resource
 
@@ -411,10 +360,7 @@ def load_models():
     return ensemble_models
 
 ensemble_models = load_models()
-
-# =========================================================
-# PREPROCESSING
-# =========================================================
+# PREPROCESSIN
 
 def crop_retina(img):
 
@@ -437,48 +383,32 @@ def crop_retina(img):
 
     return Image.fromarray(img)
 
-# =========================================================
 # TRANSFORM
-# =========================================================
 
 transform = transforms.Compose([
-
     transforms.Lambda(crop_retina),
-
     transforms.Resize((224,224)),
-
     transforms.ToTensor(),
-
     transforms.Normalize(
-
         [0.485,0.456,0.406],
-
         [0.229,0.224,0.225]
     )
 ])
-
-# =========================================================
 # ENSEMBLE PREDICTION
-# =========================================================
 
 def predict_ensemble(image):
 
     image = transform(image)
-
     image = image.unsqueeze(0).to(DEVICE)
 
     base_preds = []
 
-    # =====================================================
-    # EACH BASE LEARNER
-    # =====================================================
-
     with torch.no_grad():
+        
+        # BASE LEARNER
 
         for model_name, weights in zip(
-
             MODEL_NAMES,
-
             ALL_WEIGHTS
         ):
 
@@ -487,61 +417,42 @@ def predict_ensemble(image):
             for model in ensemble_models[model_name]:
 
                 prob = torch.sigmoid(
-
                     model(image).squeeze(1)
-
                 ).item()
 
                 fold_preds.append(prob)
 
             fold_preds = np.array(fold_preds)
 
-            # =============================================
-            # POWER VOTING
-            # =============================================
-
-            fold_preds = fold_preds ** POWER_K
-
-            # =============================================
-            # WEIGHTED FOLD ENSEMBLE
-            # =============================================
-
+            # Weighted Average antar Fold
             base_prob = np.average(
-
                 fold_preds,
-
                 weights=weights
             )
 
-            # =============================================
-            # SAVE BASE PRED
-            # =============================================
-
             base_preds.append(base_prob)
 
+    base_preds = np.array(base_preds)
 
-    # =====================================================
-    # FINAL ENSEMBLE
-    # =====================================================
-
+    # POWER VOTING
+    base_preds = base_preds ** POWER_K
+    
+    # Weighted Base Learner Ensemble
+    
     final_prob = np.average(
-
         base_preds,
-
         weights=BASE_MODEL_WEIGHTS
     )
+    
+    # Platt Scaling
 
     final_prob = calibrator.predict_proba(
-
         np.array([[final_prob]])
-
     )[0][1]
 
     return final_prob
 
-# =========================================================
-# FILE UPLOADER
-# =========================================================
+# FILE UPLOAD
 
 with tab1:
 
@@ -554,10 +465,7 @@ with tab1:
 
     if uploaded_file is not None:
 
-
-# =========================================================
 # PREDICTION
-# =========================================================
 
 
         image = Image.open(
@@ -581,9 +489,9 @@ with tab1:
 
         st.subheader("Prediction Result")
 
-        # =====================================================
+
         # RESULT
-        # =====================================================
+
 
         if pred == 1:
 
@@ -597,9 +505,9 @@ with tab1:
                 f"{CLASS_NAMES[0]} Detected"
             )
 
-        # =====================================================
+
         # PROBABILITY
-        # =====================================================
+
 
         st.write(
             f"Probability: {prob:.4f}"
@@ -607,9 +515,9 @@ with tab1:
 
         st.progress(float(prob))
 
-        # =====================================================
+
         # CONFIDENCE
-        # =====================================================
+
 
         if prob >= 0.90:
 
@@ -627,9 +535,7 @@ with tab2:
 
     st.header("Model Performance")
 
-    # =====================================================
-# ENSEMBLE CM
-# =====================================================
+# ENSEMBLE PERFORMANCE
 
     col1, col2, col3 = st.columns(3)
 
@@ -665,10 +571,7 @@ with tab2:
 
             width=300,
         )
-
-# =========================================================
 # SIDEBAR
-# =========================================================
 
 st.sidebar.title("Model Information")
 
@@ -712,10 +615,7 @@ st.sidebar.markdown("""
 - DR
 
 """)
-
-# =========================================================
-# FOOTER
-# =========================================================
+# FOOTE
 
 st.markdown("---")
 
